@@ -128,11 +128,12 @@ function renderClusterTopology() {
     const usedFormatted = formatBytes(used);
     const capFormatted = formatBytes(cap);
     const percentUsed = Math.min(100, Math.round((used / cap) * 100));
+    const nodeNum = node.id.replace("node-", "");
 
     const card = document.createElement("div");
-    card.className = `node-card bg-surface-container-low border ${
-      isHealthy ? "border-outline-variant hover:border-outline" : "border-error/40 bg-error/5"
-    } rounded-lg p-4 flex flex-col justify-between transition-all`;
+    card.className = `bg-surface-container-low border ${
+      isHealthy ? "border-outline-variant hover:border-outline" : "border-error/50 bg-error/5"
+    } rounded-xl p-4 flex flex-col justify-between transition-all shadow-sm`;
 
     card.innerHTML = `
       <div class="space-y-3">
@@ -143,61 +144,58 @@ function renderClusterTopology() {
               <span class="w-2.5 h-2.5 rounded-full ${
                 isHealthy ? "bg-secondary pulse-glow-emerald" : "bg-error pulse-glow-crimson"
               }"></span>
-              <span class="font-mono text-xs font-bold text-white">${node.id}.hydra.internal:${node.port}</span>
+              <span class="text-sm font-bold text-white">Storage Node 0${nodeNum}</span>
             </div>
-            <div class="flex items-center gap-1.5 mt-1">
-              <span class="px-1 py-0.5 bg-surface-container-high border border-outline-variant text-[10px] font-mono font-semibold tracking-wider ${
-                isHealthy ? "text-primary" : "text-error"
-              } rounded">${isHealthy ? "Follower" : "Offline"}</span>
-              <span class="text-[10px] font-mono font-bold tracking-wider ${
-                isHealthy ? "text-secondary" : "text-error"
-              }">
-                ${isHealthy ? "HEALTHY" : "DEAD / KILLED"}
-              </span>
-            </div>
+            <div class="text-[11px] text-on-surface-variant font-mono mt-0.5">Port ${node.port}</div>
           </div>
-          <span class="font-mono text-[10px] text-outline">HTTP/1.1</span>
+          <span class="text-[11px] font-semibold px-2 py-0.5 rounded ${
+            isHealthy
+              ? "bg-secondary/15 text-secondary border border-secondary/30"
+              : "bg-error/15 text-error border border-error/30"
+          }">
+            ${isHealthy ? "Online" : "Offline"}
+          </span>
         </div>
 
-        <!-- Storage Meter -->
-        <div class="space-y-1 pt-1">
-          <div class="flex justify-between text-[11px] font-mono text-on-surface-variant">
-            <span>Disk Alloc:</span>
-            <span class="text-white font-medium">${usedFormatted} / ${capFormatted} <span class="text-primary font-bold">(${percentUsed}%)</span></span>
+        <!-- Storage Capacity Meter -->
+        <div class="space-y-1.5 pt-1">
+          <div class="flex justify-between text-xs text-on-surface-variant">
+            <span>Disk Usage:</span>
+            <span class="text-white font-medium font-mono">${usedFormatted} / ${capFormatted}</span>
           </div>
-          <div class="w-full bg-surface-container-lowest h-1.5 rounded overflow-hidden">
-            <div class="${isHealthy ? "bg-primary" : "bg-error"} h-full rounded transition-all duration-500" style="width: ${percentUsed}%"></div>
+          <div class="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden">
+            <div class="${isHealthy ? "bg-primary" : "bg-error"} h-full rounded-full transition-all duration-500" style="width: ${Math.max(4, percentUsed)}%"></div>
+          </div>
+          <div class="flex justify-between text-[11px] text-outline font-mono">
+            <span>${percentUsed}% Allocated</span>
+            <span>1 GB Max</span>
           </div>
         </div>
 
-        <!-- Quick Node Metrics (3-column) -->
-        <div class="grid grid-cols-3 gap-1 pt-2 border-t border-outline-variant text-[11px] font-mono">
+        <!-- Quick Metrics -->
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-outline-variant/60 text-xs">
           <div>
-            <div class="text-outline text-[10px] font-semibold tracking-wider uppercase">CHUNKS</div>
-            <div class="text-white font-semibold">${node.chunk_count || 0}</div>
+            <div class="text-[10px] text-outline uppercase font-mono">Stored Chunks</div>
+            <div class="text-white font-semibold font-mono mt-0.5">${node.chunk_count || 0} Chunks</div>
           </div>
           <div>
-            <div class="text-outline text-[10px] font-semibold tracking-wider uppercase">HEALTH</div>
-            <div class="${isHealthy ? "text-secondary" : "text-error"} font-semibold">${isHealthy ? "Lease OK" : "Expired"}</div>
-          </div>
-          <div>
-            <div class="text-outline text-[10px] font-semibold tracking-wider uppercase">PROTOCOL</div>
-            <div class="text-on-surface font-semibold">gRPC/HTTP</div>
+            <div class="text-[10px] text-outline uppercase font-mono">Health Status</div>
+            <div class="${isHealthy ? "text-secondary" : "text-error"} font-semibold mt-0.5">${isHealthy ? "Healthy" : "Failed"}</div>
           </div>
         </div>
       </div>
 
-      <!-- Chaos Engineering Controls -->
-      <div class="flex items-center gap-2 mt-4 pt-2 border-t border-outline-variant">
+      <!-- Action Button (Chaos / Self-Healing Simulation) -->
+      <div class="mt-4 pt-3 border-t border-outline-variant/60">
         ${
           isHealthy
-            ? `<button onclick="killStorageNode('${node.id}')" class="flex-1 py-1.5 px-3 bg-surface-container-lowest border border-error text-error hover:bg-error hover:text-white font-mono text-[11px] rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                 <span class="material-symbols-outlined text-sm">skull</span>
-                 <span>Kill Node (Chaos)</span>
+            ? `<button onclick="killStorageNode('${node.id}')" class="w-full py-2 px-3 bg-surface-container border border-outline-variant hover:border-tertiary hover:text-tertiary text-on-surface text-xs font-medium rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer" title="Simulate a sudden server failure to test self-healing">
+                 <span class="material-symbols-outlined text-sm">flash_off</span>
+                 <span>Simulate Server Failure</span>
                </button>`
-            : `<button onclick="reviveStorageNode('${node.id}')" class="flex-1 py-1.5 px-3 bg-surface-container-lowest border border-secondary text-secondary hover:bg-secondary hover:text-black font-mono text-[11px] rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+            : `<button onclick="reviveStorageNode('${node.id}')" class="w-full py-2 px-3 bg-secondary/15 border border-secondary text-secondary hover:bg-secondary hover:text-black text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer" title="Revive this storage node back online">
                  <span class="material-symbols-outlined text-sm">restart_alt</span>
-                 <span>Revive Node</span>
+                 <span>Revive Server Node</span>
                </button>`
         }
       </div>
@@ -212,11 +210,11 @@ function renderClusterTopology() {
   }
   if (clusterStatusPill) {
     if (healthyCount === clusterNodes.length && clusterNodes.length > 0) {
-      clusterStatusPill.className = "flex items-center gap-2 bg-surface-container-high border border-outline-variant px-3 py-1 rounded text-xs font-mono";
-      onlineNodeCount.className = "text-secondary font-bold";
+      clusterStatusPill.className = "hidden md:flex items-center gap-2 px-3 py-1 bg-surface-container-low border border-outline-variant rounded-full text-xs font-mono";
+      onlineNodeCount.className = "text-secondary font-semibold";
     } else {
-      clusterStatusPill.className = "flex items-center gap-2 bg-error/10 border border-error/40 px-3 py-1 rounded text-xs font-mono";
-      onlineNodeCount.className = "text-error font-bold";
+      clusterStatusPill.className = "hidden md:flex items-center gap-2 px-3 py-1 bg-error/10 border border-error/40 rounded-full text-xs font-mono";
+      onlineNodeCount.className = "text-error font-semibold";
     }
   }
 
@@ -226,7 +224,11 @@ function renderClusterTopology() {
   }
   if (clusterUsedPercent) {
     const totalPercent = totalCap > 0 ? Math.round((totalUsed / totalCap) * 100) : 0;
-    clusterUsedPercent.innerText = `(${totalPercent}% Used)`;
+    clusterUsedPercent.innerText = `${totalPercent}% Used`;
+    const clusterProgressBar = document.getElementById("clusterProgressBar");
+    if (clusterProgressBar) {
+      clusterProgressBar.style.width = `${totalPercent}%`;
+    }
   }
 }
 
