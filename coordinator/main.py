@@ -1,4 +1,10 @@
 import os
+import sys
+from pathlib import Path
+
+# Ensure project root is in sys.path for direct script execution
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import asyncio
 import logging
 from contextlib import asynccontextmanager
