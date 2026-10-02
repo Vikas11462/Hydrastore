@@ -1,0 +1,18 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+ENV PYTHONPATH=/app
+ENV NODE_ID=node-1
+ENV NODE_PORT=8001
+
+EXPOSE 8001 8002 8003 8004
+
+CMD python -m storage_node.main --node-id ${NODE_ID} --port ${NODE_PORT}

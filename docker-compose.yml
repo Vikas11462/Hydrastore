@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hydrastore_postgres
+    environment:
+      POSTGRES_USER: hydra
+      POSTGRES_PASSWORD: hydrapassword
+      POSTGRES_DB: hydrastore
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hydra -d hydrastore"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: hydrastore_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  storage-node-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: hydra_node_1
+    environment:
+      NODE_ID: node-1
+      NODE_PORT: 8001
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8001:8001"
+    volumes:
+      - node1_data:/app/data_nodes/node-1/chunks
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  storage-node-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: hydra_node_2
+    environment:
+      NODE_ID: node-2
+      NODE_PORT: 8002
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8002:8002"
+    volumes:
+      - node2_data:/app/data_nodes/node-2/chunks
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  storage-node-3:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: hydra_node_3
+    environment:
+      NODE_ID: node-3
+      NODE_PORT: 8003
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8003:8003"
+    volumes:
+      - node3_data:/app/data_nodes/node-3/chunks
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  storage-node-4:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: hydra_node_4
+    environment:
+      NODE_ID: node-4
+      NODE_PORT: 8004
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8004:8004"
+    volumes:
+      - node4_data:/app/data_nodes/node-4/chunks
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  coordinator:
+    build:
+      context: .
+      dockerfile: Dockerfile.coordinator
+    container_name: hydra_coordinator
+    environment:
+      DATABASE_URL: postgresql+asyncpg://hydra:hydrapassword@postgres:5432/hydrastore
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_NODES_CONFIG: "node-1:http://storage-node-1:8001,node-2:http://storage-node-2:8002,node-3:http://storage-node-3:8003,node-4:http://storage-node-4:8004"
+      COORDINATOR_PORT: 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  node1_data:
+  node2_data:
+  node3_data:
+  node4_data:

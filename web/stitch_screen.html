@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HydraStore // Orchestration Console</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Inter & JetBrains Mono Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration Verbatim -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-fixed": "#6ffbbe",
+            "tertiary-container": "#f59e0b",
+            "on-secondary-fixed-variant": "#005236",
+            "background": "#051424",
+            "surface-tint": "#7bd0ff",
+            "on-surface-variant": "#bdc8d1",
+            "inverse-surface": "#d4e4fa",
+            "surface-dim": "#051424",
+            "secondary-container": "#00a572",
+            "on-secondary-fixed": "#002113",
+            "surface-container-lowest": "#010f1f",
+            "surface-variant": "#273647",
+            "on-tertiary-container": "#613b00",
+            "on-primary": "#00354a",
+            "on-surface": "#d4e4fa",
+            "inverse-primary": "#00668a",
+            "outline-variant": "#3e484f",
+            "outline": "#87929a",
+            "surface-container-high": "#1c2b3c",
+            "error-container": "#93000a",
+            "surface-container-low": "#0d1c2d",
+            "on-tertiary-fixed": "#2a1700",
+            "surface-bright": "#2c3a4c",
+            "tertiary-fixed-dim": "#ffb95f",
+            "primary-container": "#38bdf8",
+            "surface-container-highest": "#273647",
+            "on-error-container": "#ffdad6",
+            "primary-fixed-dim": "#7bd0ff",
+            "on-primary-fixed": "#001e2c",
+            "primary-fixed": "#c4e7ff",
+            "surface-container": "#122131",
+            "on-primary-fixed-variant": "#004c69",
+            "on-secondary": "#003824",
+            "on-secondary-container": "#00311f",
+            "error": "#ffb4ab",
+            "surface": "#051424",
+            "on-tertiary": "#472a00",
+            "on-background": "#d4e4fa",
+            "secondary": "#4edea3",
+            "on-primary-container": "#004965",
+            "inverse-on-surface": "#233143",
+            "tertiary": "#ffc174",
+            "primary": "#8ed5ff",
+            "secondary-fixed-dim": "#4edea3",
+            "tertiary-fixed": "#ffddb8",
+            "on-tertiary-fixed-variant": "#653e00",
+            "on-error": "#690005"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "gutter": "0.75rem",
+            "space-xl": "1.5rem",
+            "space-md": "0.75rem",
+            "margin": "1rem",
+            "space-sm": "0.375rem",
+            "space-lg": "1rem",
+            "space-xs": "0.25rem"
+          },
+          "fontFamily": {
+            "body-md": ["Inter"],
+            "body-lg": ["Inter"],
+            "code-sm": ["JetBrains Mono"],
+            "label-caps": ["JetBrains Mono"],
+            "headline-xl": ["Inter"],
+            "code-lg": ["JetBrains Mono"],
+            "body-sm": ["Inter"],
+            "code-md": ["JetBrains Mono"],
+            "headline-md": ["Inter"],
+            "headline-xl-mobile": ["Inter"],
+            "headline-lg": ["Inter"]
+          },
+          "fontSize": {
+            "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "body-lg": ["15px", { "lineHeight": "22px", "fontWeight": "400" }],
+            "code-sm": ["11px", { "lineHeight": "14px", "fontWeight": "400" }],
+            "label-caps": ["10px", { "lineHeight": "12px", "letterSpacing": "0.06em", "fontWeight": "600" }],
+            "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "code-lg": ["13px", { "lineHeight": "18px", "fontWeight": "500" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+            "code-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-xl-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    /* Custom scanline & terminal pulse animation */
+    .pulse-glow-emerald {
+      box-shadow: 0 0 8px rgba(78, 222, 163, 0.4);
+    }
+    .pulse-glow-amber {
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+    }
+    .pulse-glow-crimson {
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+    .pulse-glow-cyan {
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.35);
+    }
+    .striped-bar {
+      background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+      background-size: 1rem 1rem;
+      animation: progress-stripes 1.5s linear infinite;
+    }
+    @keyframes progress-stripes {
+      from { background-position: 1rem 0; }
+      to { background-position: 0 0; }
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #010f1f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #273647;
+      border-radius: 2px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #38bdf8;
+    }
+  </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body-md antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- ================= TOP APP BAR (from Shared Component JSON: TopNavBar) ================= -->
+<header class="flex justify-between items-center w-full px-space-lg h-12 bg-surface-container-lowest border-b border-outline-variant z-50 sticky top-0 shrink-0">
+<!-- Brand Anchor & Search Cluster -->
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-headline-md" data-icon="storage">storage</span>
+<span class="text-code-lg font-code-lg font-bold tracking-tight text-primary uppercase">HYDRASTORE // ORCHESTRATION CONSOLE</span>
+</div>
+<div class="h-4 w-px bg-outline-variant hidden sm:block"></div>
+<!-- Monospace Cluster Micro-Badges -->
+<div class="hidden lg:flex items-center gap-space-xs">
+<span class="px-space-xs py-0.5 bg-surface-container-low text-primary-fixed-dim border border-outline-variant font-label-caps text-label-caps rounded">v2.4-stable</span>
+<span class="px-space-xs py-0.5 bg-surface-container-low text-on-surface-variant border border-outline-variant font-label-caps text-label-caps rounded">cluster-us-east-metal-01</span>
+</div>
+<!-- Quick Command / Search Bar -->
+<div class="hidden md:flex items-center bg-surface-container-low border border-outline-variant px-space-sm py-1 rounded w-64 focus-within:border-primary-container transition-colors">
+<span class="material-symbols-outlined text-outline text-body-md mr-1" data-icon="terminal">terminal</span>
+<input class="bg-transparent border-0 p-0 text-code-sm font-code-sm text-on-surface placeholder:text-outline focus:ring-0 w-full outline-none" placeholder="Cmd+K or filter node / chunk / shard..." type="text"/>
+<span class="text-label-caps font-label-caps text-outline bg-surface-container-high px-1 rounded">⌘K</span>
+</div>
+</div>
+<!-- Navigation Links & Trailing Controls -->
+<div class="flex items-center gap-space-md">
+<!-- Nav Tabs -->
+<nav class="hidden xl:flex items-center gap-space-md h-12">
+<a class="text-primary border-b-2 border-primary font-code-md text-code-md tracking-wider uppercase py-3 transition-colors" href="#topology">Topology</a>
+<a class="text-on-surface-variant hover:text-on-surface font-code-md text-code-md tracking-wider uppercase py-3 transition-colors" href="#buckets">Buckets</a>
+<a class="text-on-surface-variant hover:text-on-surface font-code-md text-code-md tracking-wider uppercase py-3 transition-colors" href="#replication">Replication</a>
+<a class="text-on-surface-variant hover:text-on-surface font-code-md text-code-md tracking-wider uppercase py-3 transition-colors" href="#telemetry">Telemetry</a>
+<a class="text-on-surface-variant hover:text-on-surface font-code-md text-code-md tracking-wider uppercase py-3 transition-colors" href="#eventstream">Event Stream</a>
+</nav>
+<div class="h-4 w-px bg-outline-variant hidden xl:block"></div>
+<!-- Trailing Primary & Secondary Operations -->
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-1 px-2.5 py-1 bg-surface-container-high text-error border border-error-container hover:bg-error-container hover:text-on-error font-code-sm text-code-sm rounded transition-all cursor-pointer" id="chaosSimBtn">
+<span class="material-symbols-outlined text-body-sm" data-icon="electric_bolt">electric_bolt</span>
+<span>Chaos Sim</span>
+</button>
+<button class="hidden sm:flex items-center gap-1 px-2.5 py-1 bg-surface-container border border-outline-variant hover:border-outline text-on-surface font-code-sm text-code-sm rounded transition-all cursor-pointer">
+<span class="material-symbols-outlined text-body-sm" data-icon="outbox">outbox</span>
+<span>Drain Node</span>
+</button>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<button class="p-1 hover:bg-surface-container-high hover:text-primary rounded transition-colors" title="Cluster Terminal">
+<span class="material-symbols-outlined text-body-lg" data-icon="terminal">terminal</span>
+</button>
+<button class="p-1 hover:bg-surface-container-high hover:text-primary rounded transition-colors" title="Force Sync Quorum">
+<span class="material-symbols-outlined text-body-lg" data-icon="refresh">refresh</span>
+</button>
+<button class="p-1 hover:bg-surface-container-high hover:text-primary rounded transition-colors relative" title="Notifications">
+<span class="material-symbols-outlined text-body-lg" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-1.5 h-1.5 bg-secondary-fixed rounded-full"></span>
+</button>
+</div>
+<!-- Operator SRE Avatar -->
+<div class="flex items-center gap-2 pl-1 border-l border-outline-variant">
+<img alt="Operator SRE Avatar" class="w-6 h-6 rounded border border-primary-container object-cover" data-alt="A futuristic digital operator profile avatar rendered in technical cyber-industrial aesthetic with dark charcoal visor, neon cyan operational status HUD reflection, and minimal high contrast dark lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOgMeHEiCCUaTuNq6hXURvIWd05ujPymEhaBLnUSb6nUKK1DRt6n2SaaM0BQVkQj2DgVcDJ1VyWteFxVtaQ9HUv1q-WtEoS9msXmnB_5GRmDqQAHC6altxofhPq2JFtDUKD_DASKhmpKA-kCM6N4mHN8FLGvWxeuNHr40LHaYl0sJJLlrk_WyQp2eKdf1o_IIeLq5pFO7of6yvHNQRyIvLMxLoSqg1OEOOReE8Npad_rDjRPjUg_IQNEhGvMl-XDbDkABRasgEBhI"/>
+<span class="text-label-caps font-label-caps text-on-surface hidden lg:inline">sre_ops_01</span>
+</div>
+</div>
+</div>
+</header>
+<!-- ================= MAIN SUB-HEADER / TELEMETRY TICKER BAR ================= -->
+<div class="bg-surface-container-low border-b border-outline-variant px-space-lg py-2 flex flex-wrap items-center justify-between gap-y-2 text-code-sm font-code-sm">
+<!-- Cluster Status Pill & Health Flags -->
+<div class="flex items-center flex-wrap gap-space-sm">
+<div class="flex items-center gap-2 bg-surface-container-high border border-outline-variant px-2.5 py-1 rounded">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-fixed opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<span class="text-secondary font-label-caps text-label-caps font-bold tracking-wider">4/4 NODES HEALTHY</span>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1 bg-surface-container-lowest border border-outline-variant rounded text-on-surface">
+<span class="material-symbols-outlined text-secondary text-body-sm" data-icon="verified_user">verified_user</span>
+<span class="font-label-caps text-label-caps">QUORUM OK</span>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1 bg-surface-container-lowest border border-outline-variant rounded text-primary-fixed-dim">
+<span class="font-label-caps text-label-caps">[RF=2 HA ACTIVE]</span>
+</div>
+</div>
+<!-- Live IOPS, Throughput & Capacity Breakdown -->
+<div class="flex items-center flex-wrap gap-space-md text-on-surface-variant font-code-sm text-code-sm">
+<div class="flex items-center gap-2">
+<span class="text-outline text-label-caps font-label-caps">CAPACITY</span>
+<span class="text-on-surface font-semibold">12.8 TB / 48.0 TB</span>
+<span class="text-primary text-label-caps font-label-caps">(26.6% USED)</span>
+</div>
+<span class="text-outline-variant">|</span>
+<div class="flex items-center gap-2">
+<span class="text-outline text-label-caps font-label-caps">OBJECTS</span>
+<span class="text-on-surface font-semibold">142,891</span>
+</div>
+<span class="text-outline-variant">|</span>
+<div class="flex items-center gap-2">
+<span class="text-outline text-label-caps font-label-caps">IOPS</span>
+<span class="text-secondary font-semibold">14,280 ops/s</span>
+</div>
+<span class="text-outline-variant">|</span>
+<div class="flex items-center gap-2">
+<span class="text-outline text-label-caps font-label-caps">INGRESS / EGRESS</span>
+<span class="text-on-surface"><span class="text-primary">↓ 384 MB/s</span> / <span class="text-secondary">↑ 890 MB/s</span></span>
+</div>
+<button class="ml-2 px-2 py-0.5 bg-surface-container border border-outline-variant hover:border-primary text-primary font-label-caps text-label-caps rounded transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-body-sm" data-icon="health_and_safety">health_and_safety</span>
+<span>Run Health Check</span>
+</button>
+</div>
+</div>
+<!-- ================= MAIN WORKSPACE BODY (SideNav + Content) ================= -->
+<div class="flex flex-1 overflow-hidden relative">
+<!-- ================= SIDEBAR NAVIGATION (from Shared Component JSON: SideNavBar) ================= -->
+<aside class="flex flex-col h-full justify-between w-64 border-r border-outline-variant bg-surface-container-low z-40 shrink-0 hidden md:flex">
+<!-- SideNav Header -->
+<div class="p-space-md border-b border-outline-variant">
+<div class="flex items-center gap-2">
+<img alt="Hydra Engine Node Master 01" class="w-7 h-7 rounded border border-outline-variant object-cover" data-alt="Technical schematic icon representing high availability master storage node engine with glowing geometric circuitry and hyper-detailed telemetry lines on deep dark slate." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhyms0n6m9r4dea7ZwKrI-IuSLmaazW0HtkIKNPBGP1OiXKVkPMZ5uH-1M7NcagyrkjnXO2JbsOEme5io8ZESFBdWMrHEqzx3gen9hom5BC7tgLIjydvQ2KsroSi-CTZoMCtOmg5XVrXtsHj3WRv3U2WwKnMlHc-eL9-4p8UxVGWZ2RbU1B1pYI35YF-pGgakJn9MKoYqmiP7IKw3k_FKRBsoeKqmlzqq4FvcITByJ9dEesK9BF0aGjI91YJVxTauruqKt-k2QDNM"/>
+<div>
+<div class="text-code-lg font-code-lg font-bold text-on-surface">HYDRA-CORE v4.19</div>
+<div class="text-label-caps font-label-caps text-secondary">QUORUM: MET [RF=2]</div>
+</div>
+</div>
+</div>
+<!-- SideNav Middle Links -->
+<div class="flex-1 py-space-sm overflow-y-auto">
+<nav class="space-y-0.5">
+<!-- Item 1: Cluster State (Active) -->
+<a class="flex items-center gap-space-sm px-space-md py-2 bg-surface-container-high text-primary border-l-2 border-primary font-code-md text-code-md" href="#topology">
+<span class="material-symbols-outlined text-body-lg" data-icon="hub">hub</span>
+<span>Cluster State</span>
+</a>
+<!-- Item 2 -->
+<a class="flex items-center gap-space-sm px-space-md py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-code-md text-code-md transition-colors" href="#matrix">
+<span class="material-symbols-outlined text-body-lg" data-icon="grid_view">grid_view</span>
+<span>Shard Matrix</span>
+</a>
+<!-- Item 3 -->
+<a class="flex items-center gap-space-sm px-space-md py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-code-md text-code-md transition-colors" href="#buckets">
+<span class="material-symbols-outlined text-body-lg" data-icon="folder_data">folder_data</span>
+<span>Object Buckets</span>
+</a>
+<!-- Item 4 -->
+<a class="flex items-center gap-space-sm px-space-md py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-code-md text-code-md transition-colors" href="#rebalance">
+<span class="material-symbols-outlined text-body-lg" data-icon="sync_alt">sync_alt</span>
+<span>Rebalance Log</span>
+</a>
+<!-- Item 5 -->
+<a class="flex items-center gap-space-sm px-space-md py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-code-md text-code-md transition-colors" href="#quorum">
+<span class="material-symbols-outlined text-body-lg" data-icon="verified_user">verified_user</span>
+<span>Quorum Health</span>
+</a>
+<!-- Item 6 -->
+<a class="flex items-center gap-space-sm px-space-md py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-code-md text-code-md transition-colors" href="#audit">
+<span class="material-symbols-outlined text-body-lg" data-icon="data_object">data_object</span>
+<span>System Audit</span>
+</a>
+</nav>
+<!-- CTA in SideNav -->
+<div class="px-space-md pt-space-lg">
+<button class="w-full py-1.5 px-space-sm bg-surface-container border border-primary-container text-primary-fixed-dim hover:bg-primary-container hover:text-on-primary-container font-code-sm text-code-sm rounded transition-all cursor-pointer flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-body-sm" data-icon="autorenew">autorenew</span>
+<span>Trigger Rebalance</span>
+</button>
+</div>
+</div>
+<!-- SideNav Footer Tabs -->
+<div class="border-t border-outline-variant p-space-sm space-y-1">
+<a class="flex items-center gap-space-sm px-space-sm py-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-code-sm text-code-sm rounded transition-colors" href="#terminal">
+<span class="material-symbols-outlined text-body-sm" data-icon="terminal">terminal</span>
+<span>Terminal</span>
+</a>
+<a class="flex items-center gap-space-sm px-space-sm py-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-code-sm text-code-sm rounded transition-colors" href="#telemetry-settings">
+<span class="material-symbols-outlined text-body-sm" data-icon="tune">tune</span>
+<span>Telemetry Settings</span>
+</a>
+</div>
+</aside>
+<!-- ================= CANVAS CONTENT AREA ================= -->
+<main class="flex-1 overflow-y-auto p-space-lg space-y-space-lg bg-surface">
+<!-- SECTION 1: STORAGE NODES TOPOLOGY GRID (4 Nodes) -->
+<section class="space-y-space-sm" id="topology">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-headline-md" data-icon="hub">hub</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Storage Nodes Topology Grid</h2>
+<span class="px-space-xs py-0.5 bg-surface-container text-secondary border border-outline-variant font-label-caps text-label-caps rounded">4 LIVE INSTANCES</span>
+</div>
+<div class="flex items-center gap-2 text-code-sm font-code-sm text-on-surface-variant">
+<span>Raft Consensus Cycle: <span class="text-primary">120ms</span></span>
+<button class="p-1 hover:text-primary transition-colors"><span class="material-symbols-outlined text-body-sm" data-icon="sync">sync</span></button>
+</div>
+</div>
+<!-- 4-Column Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- NODE 1 -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-space-md flex flex-col justify-between hover:border-outline transition-all">
+<div class="space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary pulse-glow-emerald"></span>
+<span class="font-code-md text-code-md font-bold text-on-surface">node-01.hydra.internal:9001</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="px-1 py-0.2 bg-surface-container-high border border-outline text-primary font-label-caps text-label-caps rounded">Leader / Raft Quorum</span>
+<span class="text-label-caps font-label-caps text-secondary font-bold">HEALTHY</span>
+</div>
+</div>
+<span class="font-code-sm text-code-sm text-outline">0.4ms</span>
+</div>
+<!-- Storage Meter -->
+<div class="space-y-1 pt-1">
+<div class="flex justify-between text-code-sm font-code-sm text-on-surface-variant">
+<span>Disk Alloc:</span>
+<span class="text-on-surface font-medium">3.2 TB / 12 TB <span class="text-primary">(27%)</span></span>
+</div>
+<div class="w-full bg-surface-container-lowest h-1.5 rounded overflow-hidden">
+<div class="bg-primary h-full rounded" style="width: 27%"></div>
+</div>
+</div>
+<!-- Quick Node Metrics -->
+<div class="grid grid-cols-3 gap-1 pt-2 border-t border-outline-variant text-code-sm font-code-sm">
+<div>
+<div class="text-outline text-label-caps font-label-caps">CHUNKS</div>
+<div class="text-on-surface font-semibold">71,445</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">CPU LOAD</div>
+<div class="text-secondary font-semibold">14%</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">UPTIME</div>
+<div class="text-on-surface font-semibold">99.998%</div>
+</div>
+</div>
+</div>
+<!-- Card Actions -->
+<div class="flex items-center gap-2 mt-4 pt-2 border-t border-outline-variant">
+<button class="flex-1 py-1 bg-surface-container-lowest border border-error text-error hover:bg-error-container hover:text-on-error font-code-sm text-code-sm rounded transition-all" onclick="simulateNodeKill('node-01')">
+                Kill Node (Chaos)
+              </button>
+<button class="px-3 py-1 bg-surface-container border border-outline-variant hover:border-outline text-on-surface font-code-sm text-code-sm rounded transition-all">
+                Drain
+              </button>
+</div>
+</div>
+<!-- NODE 2 -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-space-md flex flex-col justify-between hover:border-outline transition-all">
+<div class="space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary pulse-glow-emerald"></span>
+<span class="font-code-md text-code-md font-bold text-on-surface">node-02.hydra.internal:9002</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="px-1 py-0.2 bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-caps text-label-caps rounded">Follower</span>
+<span class="text-label-caps font-label-caps text-secondary font-bold">HEALTHY</span>
+</div>
+</div>
+<span class="font-code-sm text-code-sm text-outline">0.8ms</span>
+</div>
+<!-- Storage Meter -->
+<div class="space-y-1 pt-1">
+<div class="flex justify-between text-code-sm font-code-sm text-on-surface-variant">
+<span>Disk Alloc:</span>
+<span class="text-on-surface font-medium">3.4 TB / 12 TB <span class="text-primary">(28%)</span></span>
+</div>
+<div class="w-full bg-surface-container-lowest h-1.5 rounded overflow-hidden">
+<div class="bg-primary h-full rounded" style="width: 28%"></div>
+</div>
+</div>
+<!-- Quick Node Metrics -->
+<div class="grid grid-cols-3 gap-1 pt-2 border-t border-outline-variant text-code-sm font-code-sm">
+<div>
+<div class="text-outline text-label-caps font-label-caps">CHUNKS</div>
+<div class="text-on-surface font-semibold">71,446</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">CPU LOAD</div>
+<div class="text-secondary font-semibold">18%</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">UPTIME</div>
+<div class="text-on-surface font-semibold">99.998%</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 mt-4 pt-2 border-t border-outline-variant">
+<button class="flex-1 py-1 bg-surface-container-lowest border border-error text-error hover:bg-error-container hover:text-on-error font-code-sm text-code-sm rounded transition-all" onclick="simulateNodeKill('node-02')">
+                Kill Node (Chaos)
+              </button>
+<button class="px-3 py-1 bg-surface-container border border-outline-variant hover:border-outline text-on-surface font-code-sm text-code-sm rounded transition-all">
+                Drain
+              </button>
+</div>
+</div>
+<!-- NODE 3 -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-space-md flex flex-col justify-between hover:border-outline transition-all">
+<div class="space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary pulse-glow-emerald"></span>
+<span class="font-code-md text-code-md font-bold text-on-surface">node-03.hydra.internal:9003</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="px-1 py-0.2 bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-caps text-label-caps rounded">Follower</span>
+<span class="text-label-caps font-label-caps text-secondary font-bold">HEALTHY</span>
+</div>
+</div>
+<span class="font-code-sm text-code-sm text-outline">0.6ms</span>
+</div>
+<!-- Storage Meter -->
+<div class="space-y-1 pt-1">
+<div class="flex justify-between text-code-sm font-code-sm text-on-surface-variant">
+<span>Disk Alloc:</span>
+<span class="text-on-surface font-medium">3.1 TB / 12 TB <span class="text-primary">(26%)</span></span>
+</div>
+<div class="w-full bg-surface-container-lowest h-1.5 rounded overflow-hidden">
+<div class="bg-primary h-full rounded" style="width: 26%"></div>
+</div>
+</div>
+<!-- Quick Node Metrics -->
+<div class="grid grid-cols-3 gap-1 pt-2 border-t border-outline-variant text-code-sm font-code-sm">
+<div>
+<div class="text-outline text-label-caps font-label-caps">CHUNKS</div>
+<div class="text-on-surface font-semibold">71,445</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">CPU LOAD</div>
+<div class="text-secondary font-semibold">12%</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">UPTIME</div>
+<div class="text-on-surface font-semibold">99.999%</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 mt-4 pt-2 border-t border-outline-variant">
+<button class="flex-1 py-1 bg-surface-container-lowest border border-error text-error hover:bg-error-container hover:text-on-error font-code-sm text-code-sm rounded transition-all" onclick="simulateNodeKill('node-03')">
+                Kill Node (Chaos)
+              </button>
+<button class="px-3 py-1 bg-surface-container border border-outline-variant hover:border-outline text-on-surface font-code-sm text-code-sm rounded transition-all">
+                Drain
+              </button>
+</div>
+</div>
+<!-- NODE 4 (Simulated Failover State / Recovered) -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-space-md flex flex-col justify-between hover:border-outline transition-all" id="card-node-04">
+<div class="space-y-2">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary pulse-glow-emerald" id="dot-node-04"></span>
+<span class="font-code-md text-code-md font-bold text-on-surface">node-04.hydra.internal:9004</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="px-1 py-0.2 bg-surface-container-high border border-outline-variant text-tertiary font-label-caps text-label-caps rounded">Failover Shard</span>
+<span class="text-label-caps font-label-caps text-secondary font-bold" id="status-node-04">HEALTHY</span>
+</div>
+</div>
+<span class="font-code-sm text-code-sm text-outline">1.1ms</span>
+</div>
+<!-- Storage Meter -->
+<div class="space-y-1 pt-1">
+<div class="flex justify-between text-code-sm font-code-sm text-on-surface-variant">
+<span>Disk Alloc:</span>
+<span class="text-on-surface font-medium">3.1 TB / 12 TB <span class="text-primary">(26%)</span></span>
+</div>
+<div class="w-full bg-surface-container-lowest h-1.5 rounded overflow-hidden">
+<div class="bg-primary h-full rounded" style="width: 26%"></div>
+</div>
+</div>
+<!-- Quick Node Metrics -->
+<div class="grid grid-cols-3 gap-1 pt-2 border-t border-outline-variant text-code-sm font-code-sm">
+<div>
+<div class="text-outline text-label-caps font-label-caps">CHUNKS</div>
+<div class="text-on-surface font-semibold">71,446</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">CPU LOAD</div>
+<div class="text-secondary font-semibold">16%</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">UPTIME</div>
+<div class="text-on-surface font-semibold">99.982%</div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 mt-4 pt-2 border-t border-outline-variant">
+<button class="flex-1 py-1 bg-surface-container-lowest border border-error text-error hover:bg-error-container hover:text-on-error font-code-sm text-code-sm rounded transition-all" id="btnKillNode4" onclick="toggleNode4State()">
+                Kill Node (Chaos)
+              </button>
+<button class="px-3 py-1 bg-surface-container border border-outline-variant hover:border-outline text-on-surface font-code-sm text-code-sm rounded transition-all">
+                Maintenance
+              </button>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: DRAG & DROP FILE UPLOADER + ACTIVE INGEST STREAM -->
+<section class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-headline-md" data-icon="cloud_upload">cloud_upload</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Distributed Ingestion Pipeline</h2>
+</div>
+<div class="hidden sm:flex items-center gap-2 text-label-caps font-label-caps text-outline">
+<span>PIPELINE:</span>
+<span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface rounded">4MB Chunks</span>
+<span>→</span>
+<span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface rounded">SHA-256 Hashing</span>
+<span>→</span>
+<span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-secondary rounded">RF=2 Striping</span>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-space-md">
+<!-- Dropzone Boundary -->
+<div class="lg:col-span-2 border-2 border-dashed border-outline-variant hover:border-primary-container bg-surface-container-low rounded p-space-lg flex flex-col items-center justify-center text-center transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-headline-lg text-primary" data-icon="upload_file">upload_file</span>
+</div>
+<div class="font-code-md text-code-md font-medium text-on-surface">
+              Drop objects to ingest into HydraStore <span class="text-outline">(Max object size 5GB)</span> or <span class="text-primary underline">browse files</span>
+</div>
+<div class="font-code-sm text-code-sm text-outline mt-1">
+              Supports automated multi-part chunking, erasure coding fallback, and Quorum consensus striping.
+            </div>
+</div>
+<!-- Active Ingest Transfer Card -->
+<div class="bg-surface-container-low border border-outline-variant rounded p-space-md flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between text-code-sm font-code-sm mb-1">
+<span class="font-label-caps text-label-caps text-primary uppercase font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-ping"></span>
+                  Active Ingest
+                </span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">78%</span>
+</div>
+<div class="font-code-md text-code-md font-semibold text-on-surface truncate">
+                training-weights-llama3-chunked.bin
+              </div>
+<div class="flex items-center justify-between text-code-sm font-code-sm text-on-surface-variant mt-1">
+<span>3.28 GB / 4.2 GB</span>
+<span class="text-secondary font-medium">248 MB/s</span>
+</div>
+<!-- Animated Striped Progress Bar -->
+<div class="w-full bg-surface-container-lowest h-2 rounded mt-2 overflow-hidden border border-outline-variant">
+<div class="bg-primary-container h-full striped-bar rounded" style="width: 78%"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-outline-variant text-code-sm font-code-sm text-outline mt-3">
+<span>ETA: <span class="text-on-surface font-medium">00:04s left</span></span>
+<span class="text-label-caps font-label-caps px-1.5 py-0.5 bg-surface-container text-primary-fixed-dim rounded">1,075 Chunks Striped</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3: STORED OBJECTS TABLE WITH INSPECTION MODAL TRIGGER -->
+<section class="space-y-space-sm" id="buckets">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-headline-md" data-icon="inventory_2">inventory_2</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Stored Objects Index</h2>
+<span class="text-label-caps font-label-caps text-outline bg-surface-container px-2 py-0.5 rounded border border-outline-variant">5 OBJECTS VISIBLE</span>
+</div>
+<!-- Search & Filter Controls -->
+<div class="flex items-center flex-wrap gap-space-xs">
+<div class="flex items-center bg-surface-container-low border border-outline-variant px-2 py-1 rounded w-60 focus-within:border-primary-container">
+<span class="material-symbols-outlined text-outline text-body-sm mr-1" data-icon="search">search</span>
+<input class="bg-transparent border-0 p-0 text-code-sm font-code-sm text-on-surface placeholder:text-outline focus:ring-0 w-full outline-none" placeholder="Filter by key, prefix or hash..." type="text"/>
+</div>
+<!-- Bucket selector -->
+<select class="bg-surface-container-low border border-outline-variant text-code-sm font-code-sm text-on-surface py-1 px-2 rounded focus:ring-0 focus:border-primary-container">
+<option value="all">all-buckets</option>
+<option value="prod-ml-models">prod-ml-models</option>
+<option value="backups">backups</option>
+<option value="telemetry-raw">telemetry-raw</option>
+</select>
+</div>
+</div>
+<!-- High Density Data Table -->
+<div class="border border-outline-variant rounded bg-surface-container-low overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-lowest text-outline font-label-caps text-label-caps tracking-wider uppercase select-none">
+<th class="py-2.5 px-space-md">Object Key / File Name</th>
+<th class="py-2.5 px-space-md">Bucket</th>
+<th class="py-2.5 px-space-md">Size</th>
+<th class="py-2.5 px-space-md">Chunks &amp; Replica</th>
+<th class="py-2.5 px-space-md">SHA-256 Checksum</th>
+<th class="py-2.5 px-space-md">Ingest Date</th>
+<th class="py-2.5 px-space-md text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant text-code-sm font-code-sm">
+<!-- RECORD 1 (Target for Modal Inspection) -->
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="py-2 px-space-md font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-body-lg" data-icon="neurology">neurology</span>
+<span>models/v3/resnet50-fp16.onnx</span>
+</td>
+<td class="py-2 px-space-md text-on-surface-variant font-label-caps text-label-caps">prod-ml-models</td>
+<td class="py-2 px-space-md text-on-surface">194.2 MB</td>
+<td class="py-2 px-space-md">
+<span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-primary font-label-caps text-label-caps rounded">49 Chunks (RF=2) [N1, N3]</span>
+</td>
+<td class="py-2 px-space-md text-outline font-mono">
+<span>e3b0c442...98fc</span>
+<button class="ml-1 hover:text-primary" title="Copy Hash"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="content_copy">content_copy</span></button>
+</td>
+<td class="py-2 px-space-md text-outline">2025-05-18 14:18:22</td>
+<td class="py-2 px-space-md text-right space-x-1">
+<button class="px-2 py-0.5 bg-primary-container text-on-primary-container font-code-sm text-code-sm rounded hover:bg-surface-tint transition-all font-medium" onclick="openChunkModal()">
+                    Inspect Chunks
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors" title="Download Object"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="download">download</span></button>
+<button class="p-1 text-outline hover:text-error transition-colors" title="Purge Record"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="delete">delete</span></button>
+</td>
+</tr>
+<!-- RECORD 2 -->
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="py-2 px-space-md font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-body-lg" data-icon="folder_zip">folder_zip</span>
+<span>datasets/imagenet-val-shard-08.tar.zst</span>
+</td>
+<td class="py-2 px-space-md text-on-surface-variant font-label-caps text-label-caps">prod-ml-models</td>
+<td class="py-2 px-space-md text-on-surface">1.42 GB</td>
+<td class="py-2 px-space-md">
+<span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-caps text-label-caps rounded">356 Chunks (RF=2) [N2, N4]</span>
+</td>
+<td class="py-2 px-space-md text-outline font-mono">
+<span>9a4d81f2...5b30</span>
+<button class="ml-1 hover:text-primary" title="Copy Hash"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="content_copy">content_copy</span></button>
+</td>
+<td class="py-2 px-space-md text-outline">2025-05-18 13:45:01</td>
+<td class="py-2 px-space-md text-right space-x-1">
+<button class="px-2 py-0.5 bg-surface-container border border-outline-variant text-on-surface hover:border-primary-container font-code-sm text-code-sm rounded transition-all" onclick="openChunkModal()">
+                    Inspect Chunks
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors" title="Download Object"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="download">download</span></button>
+<button class="p-1 text-outline hover:text-error transition-colors" title="Purge Record"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="delete">delete</span></button>
+</td>
+</tr>
+<!-- RECORD 3 -->
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="py-2 px-space-md font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-body-lg" data-icon="database">database</span>
+<span>system-backups/postgres-wal-2025-05-18.lz4</span>
+</td>
+<td class="py-2 px-space-md text-on-surface-variant font-label-caps text-label-caps">backups</td>
+<td class="py-2 px-space-md text-on-surface">840.0 MB</td>
+<td class="py-2 px-space-md">
+<span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-caps text-label-caps rounded">210 Chunks (RF=2) [N1, N4]</span>
+</td>
+<td class="py-2 px-space-md text-outline font-mono">
+<span>b8f2701c...44a7</span>
+<button class="ml-1 hover:text-primary" title="Copy Hash"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="content_copy">content_copy</span></button>
+</td>
+<td class="py-2 px-space-md text-outline">2025-05-18 12:00:09</td>
+<td class="py-2 px-space-md text-right space-x-1">
+<button class="px-2 py-0.5 bg-surface-container border border-outline-variant text-on-surface hover:border-primary-container font-code-sm text-code-sm rounded transition-all" onclick="openChunkModal()">
+                    Inspect Chunks
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors" title="Download Object"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="download">download</span></button>
+<button class="p-1 text-outline hover:text-error transition-colors" title="Purge Record"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="delete">delete</span></button>
+</td>
+</tr>
+<!-- RECORD 4 -->
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="py-2 px-space-md font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-body-lg" data-icon="table_chart">table_chart</span>
+<span>telemetry/traces-2025-05-18T1400.parquet</span>
+</td>
+<td class="py-2 px-space-md text-on-surface-variant font-label-caps text-label-caps">telemetry-raw</td>
+<td class="py-2 px-space-md text-on-surface">62.8 MB</td>
+<td class="py-2 px-space-md">
+<span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-caps text-label-caps rounded">16 Chunks (RF=2) [N2, N3]</span>
+</td>
+<td class="py-2 px-space-md text-outline font-mono">
+<span>14c00d98...129e</span>
+<button class="ml-1 hover:text-primary" title="Copy Hash"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="content_copy">content_copy</span></button>
+</td>
+<td class="py-2 px-space-md text-outline">2025-05-18 14:02:11</td>
+<td class="py-2 px-space-md text-right space-x-1">
+<button class="px-2 py-0.5 bg-surface-container border border-outline-variant text-on-surface hover:border-primary-container font-code-sm text-code-sm rounded transition-all" onclick="openChunkModal()">
+                    Inspect Chunks
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors" title="Download Object"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="download">download</span></button>
+<button class="p-1 text-outline hover:text-error transition-colors" title="Purge Record"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="delete">delete</span></button>
+</td>
+</tr>
+<!-- RECORD 5 -->
+<tr class="hover:bg-surface-container transition-colors group">
+<td class="py-2 px-space-md font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-body-lg" data-icon="memory">memory</span>
+<span>firmware/hydra-node-firmware-v4.19.bin</span>
+</td>
+<td class="py-2 px-space-md text-on-surface-variant font-label-caps text-label-caps">backups</td>
+<td class="py-2 px-space-md text-on-surface">12.4 MB</td>
+<td class="py-2 px-space-md">
+<span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface-variant font-label-caps text-label-caps rounded">4 Chunks (RF=2) [N1, N2]</span>
+</td>
+<td class="py-2 px-space-md text-outline font-mono">
+<span>88ef391a...fa22</span>
+<button class="ml-1 hover:text-primary" title="Copy Hash"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="content_copy">content_copy</span></button>
+</td>
+<td class="py-2 px-space-md text-outline">2025-05-18 10:14:30</td>
+<td class="py-2 px-space-md text-right space-x-1">
+<button class="px-2 py-0.5 bg-surface-container border border-outline-variant text-on-surface hover:border-primary-container font-code-sm text-code-sm rounded transition-all" onclick="openChunkModal()">
+                    Inspect Chunks
+                  </button>
+<button class="p-1 text-on-surface-variant hover:text-primary transition-colors" title="Download Object"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="download">download</span></button>
+<button class="p-1 text-outline hover:text-error transition-colors" title="Purge Record"><span class="material-symbols-outlined text-body-sm align-middle" data-icon="delete">delete</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- SECTION 4: LIVE CLUSTER RAFT STREAM TERMINAL CONSOLE -->
+<section class="space-y-space-sm pb-space-lg" id="eventstream">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-headline-md" data-icon="terminal">terminal</span>
+<h2 class="text-headline-md font-headline-md text-on-surface">Live Cluster Raft Stream // Heartbeat &amp; Failover Audit</h2>
+</div>
+<div class="flex items-center gap-space-xs text-code-sm font-code-sm">
+<span class="flex items-center gap-1.5 text-secondary text-label-caps font-label-caps px-2 py-0.5 bg-surface-container border border-outline-variant rounded">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+              STREAMING (100ms)
+            </span>
+<button class="px-2 py-0.5 bg-surface-container border border-outline-variant hover:border-outline text-outline hover:text-on-surface rounded transition-colors" onclick="clearConsoleLog()">
+              Clear
+            </button>
+</div>
+</div>
+<!-- Terminal Shell Box -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded p-space-md font-mono text-code-sm space-y-1.5 shadow-inner">
+<div class="flex items-center justify-between pb-2 border-b border-outline-variant text-outline text-code-sm font-code-sm">
+<span>SESSION_ID: raft-audit-stream-49120</span>
+<span>FILTER: severity &gt;= [INFO]</span>
+</div>
+<div class="space-y-1 overflow-y-auto max-h-48 text-code-sm font-code-sm" id="terminalLogContainer">
+<!-- Row 1 -->
+<div class="flex items-start gap-2">
+<span class="text-outline">[14:22:01.402]</span>
+<span class="text-primary font-semibold">[INFO]</span>
+<span class="text-on-surface-variant font-semibold">[HEARTBEAT]</span>
+<span class="text-on-surface">Node 01 received ACK from Node 02, 03, 04. Quorum consensus latency: <span class="text-secondary font-mono">0.62ms</span>.</span>
+</div>
+<!-- Row 2 -->
+<div class="flex items-start gap-2">
+<span class="text-outline">[14:22:04.819]</span>
+<span class="text-secondary font-semibold">[OK]</span>
+<span class="text-primary font-semibold">[PUT_OBJECT]</span>
+<span class="text-on-surface">Key <span class="text-primary-fixed-dim">'models/v3/resnet50-fp16.onnx'</span> (49 chunks) replicated with RF=2 across [node-01, node-03]. SHA-256 Checksum verified.</span>
+</div>
+<!-- Row 3 -->
+<div class="flex items-start gap-2">
+<span class="text-outline">[14:22:08.104]</span>
+<span class="text-primary font-semibold">[INFO]</span>
+<span class="text-on-surface-variant font-semibold">[RAFT_LEASE]</span>
+<span class="text-on-surface">Node 01 renewed leader lease (term 4821) for 5000ms. Quorum intact.</span>
+</div>
+<!-- Row 4 -->
+<div class="flex items-start gap-2">
+<span class="text-outline">[14:22:12.951]</span>
+<span class="text-tertiary font-semibold">[WARN]</span>
+<span class="text-tertiary-container font-semibold">[REBALANCE]</span>
+<span class="text-on-surface">Node 04 disk utilization delta detected +1.2GB. Background rebalance thread passive (Threshold 75% unreached).</span>
+</div>
+<!-- Row 5 -->
+<div class="flex items-start gap-2">
+<span class="text-outline">[14:22:15.330]</span>
+<span class="text-primary font-semibold">[INFO]</span>
+<span class="text-on-surface-variant font-semibold">[SCRUB]</span>
+<span class="text-on-surface">Background bitrot scrub routine completed for Bucket 'prod-ml-models'. 0 silent corruptions found.</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- ================= SECTION 5: MODAL DIALOG - INSPECT CHUNK & REPLICA PLACEMENT ================= -->
+<div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden" id="chunkInspectionModal">
+<div class="bg-surface-container-low border border-outline w-full max-w-4xl rounded shadow-2xl overflow-hidden flex flex-col max-h-[921px]">
+<!-- Modal Header -->
+<div class="flex items-center justify-between px-space-lg py-3 border-b border-outline-variant bg-surface-container">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-headline-md" data-icon="segment">segment</span>
+<div>
+<div class="text-headline-md font-headline-md text-on-surface">Inspect Chunk Topology: models/v3/resnet50-fp16.onnx</div>
+<div class="text-label-caps font-label-caps text-outline">OBJECT_SIZE: 194.2 MB // RAFT LOG POSITION: 8192-8241</div>
+</div>
+</div>
+<button class="text-outline hover:text-on-surface p-1 rounded transition-colors" onclick="closeChunkModal()">
+<span class="material-symbols-outlined text-headline-md" data-icon="close">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-space-lg overflow-y-auto space-y-space-md">
+<!-- Summary Strip -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-surface-container-lowest border border-outline-variant p-space-sm rounded text-code-sm font-code-sm">
+<div>
+<div class="text-outline text-label-caps font-label-caps">TOTAL CHUNKS</div>
+<div class="text-on-surface font-bold">49 Chunks</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">STANDARD CHUNK SIZE</div>
+<div class="text-on-surface font-bold">4.0 MB</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">REPLICATION FACTOR</div>
+<div class="text-secondary font-bold">RF=2 (98 Shards)</div>
+</div>
+<div>
+<div class="text-outline text-label-caps font-label-caps">QUORUM INTEGRITY</div>
+<div class="text-secondary font-bold">100% VERIFIED</div>
+</div>
+</div>
+<!-- Node Allocation Heatmap -->
+<div class="space-y-1">
+<div class="flex items-center justify-between text-code-sm font-code-sm">
+<span class="text-on-surface font-semibold">Node Allocation Heatmap</span>
+<span class="text-outline text-label-caps font-label-caps">DISTRIBUTED EQUALLY ACROSS METAL NODES</span>
+</div>
+<div class="grid grid-cols-4 gap-2 text-code-sm font-code-sm">
+<div class="bg-surface-container p-2 rounded border border-outline-variant">
+<div class="text-primary font-bold">Node 01</div>
+<div class="text-on-surface">25 Primary Chunks</div>
+<div class="text-outline text-code-sm">24 Secondary Replicas</div>
+</div>
+<div class="bg-surface-container p-2 rounded border border-outline-variant">
+<div class="text-primary font-bold">Node 02</div>
+<div class="text-on-surface">24 Primary Chunks</div>
+<div class="text-outline text-code-sm">25 Secondary Replicas</div>
+</div>
+<div class="bg-surface-container p-2 rounded border border-outline-variant">
+<div class="text-primary font-bold">Node 03</div>
+<div class="text-on-surface">25 Secondary Replicas</div>
+<div class="text-outline text-code-sm">Mirror Target</div>
+</div>
+<div class="bg-surface-container p-2 rounded border border-outline-variant">
+<div class="text-primary font-bold">Node 04</div>
+<div class="text-on-surface">24 Secondary Replicas</div>
+<div class="text-outline text-code-sm">Mirror Target</div>
+</div>
+</div>
+</div>
+<!-- Chunk Replica Matrix Table -->
+<div class="border border-outline-variant rounded overflow-hidden">
+<div class="bg-surface-container-highest px-3 py-1.5 text-label-caps font-label-caps text-on-surface-variant font-bold border-b border-outline-variant">
+            CHUNK STRIPE DISTRIBUTION MATRIX (SAMPLE 4 OF 49)
+          </div>
+<table class="w-full text-left text-code-sm font-code-sm border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest border-b border-outline-variant text-outline text-label-caps font-label-caps uppercase">
+<th class="py-2 px-3">Chunk ID</th>
+<th class="py-2 px-3">Byte Offset</th>
+<th class="py-2 px-3">Primary Shard</th>
+<th class="py-2 px-3">Replica Shard</th>
+<th class="py-2 px-3">SHA-256 Checksum</th>
+<th class="py-2 px-3 text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container">
+<td class="py-2 px-3 font-mono text-primary">#0001</td>
+<td class="py-2 px-3 text-on-surface-variant">0 - 4.0 MB</td>
+<td class="py-2 px-3 font-semibold text-on-surface">Node 01</td>
+<td class="py-2 px-3 text-on-surface-variant">Node 03</td>
+<td class="py-2 px-3 font-mono text-outline">8f4e9102...2a1b</td>
+<td class="py-2 px-3 text-right"><span class="text-secondary font-label-caps text-label-caps">HEALTHY</span></td>
+</tr>
+<tr class="hover:bg-surface-container">
+<td class="py-2 px-3 font-mono text-primary">#0002</td>
+<td class="py-2 px-3 text-on-surface-variant">4.0 - 8.0 MB</td>
+<td class="py-2 px-3 font-semibold text-on-surface">Node 02</td>
+<td class="py-2 px-3 text-on-surface-variant">Node 04</td>
+<td class="py-2 px-3 font-mono text-outline">3c9d7488...9e41</td>
+<td class="py-2 px-3 text-right"><span class="text-secondary font-label-caps text-label-caps">HEALTHY</span></td>
+</tr>
+<tr class="hover:bg-surface-container">
+<td class="py-2 px-3 font-mono text-primary">#0003</td>
+<td class="py-2 px-3 text-on-surface-variant">8.0 - 12.0 MB</td>
+<td class="py-2 px-3 font-semibold text-on-surface">Node 01</td>
+<td class="py-2 px-3 text-on-surface-variant">Node 02</td>
+<td class="py-2 px-3 font-mono text-outline">7b1a6299...f820</td>
+<td class="py-2 px-3 text-right"><span class="text-secondary font-label-caps text-label-caps">HEALTHY</span></td>
+</tr>
+<tr class="hover:bg-surface-container">
+<td class="py-2 px-3 font-mono text-primary">#0049</td>
+<td class="py-2 px-3 text-on-surface-variant">192.0 - 194.2 MB</td>
+<td class="py-2 px-3 font-semibold text-on-surface">Node 03</td>
+<td class="py-2 px-3 text-on-surface-variant">Node 04</td>
+<td class="py-2 px-3 font-mono text-outline">d10e5504...831c</td>
+<td class="py-2 px-3 text-right"><span class="text-secondary font-label-caps text-label-caps">HEALTHY</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Modal Footer Operations -->
+<div class="flex items-center justify-between px-space-lg py-3 border-t border-outline-variant bg-surface-container text-code-sm font-code-sm">
+<div class="text-outline text-label-caps font-label-caps">
+          BACKGROUND SCRUB: LAST RUN 4 MIN AGO
+        </div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1 bg-surface-container-high border border-outline-variant hover:border-primary text-on-surface rounded transition-colors flex items-center gap-1" onclick="triggerBitrotNotification()">
+<span class="material-symbols-outlined text-body-sm" data-icon="policy">policy</span>
+<span>Trigger Manual Bitrot Verification</span>
+</button>
+<button class="px-3 py-1 bg-primary-container text-on-primary-container font-medium rounded hover:bg-surface-tint transition-colors">
+            Re-stripe Chunks
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Micro-interactions Script -->
+<script>
+    // Modal controls
+    function openChunkModal() {
+      document.getElementById('chunkInspectionModal').classList.remove('hidden');
+    }
+    function closeChunkModal() {
+      document.getElementById('chunkInspectionModal').classList.add('hidden');
+    }
+
+    // Clear console terminal
+    function clearConsoleLog() {
+      const container = document.getElementById('terminalLogContainer');
+      container.innerHTML = '<div class="text-outline">[CONSOLES CLEARED BY OPERATOR] Ready for new telemetry frames.</div>';
+    }
+
+    // Bitrot trigger toast simulation
+    function triggerBitrotNotification() {
+      alert("Bitrot Scrub Dispatched: Verifying checksums for 49 chunks against Raft quorum...");
+    }
+
+    // Chaos Simulation Toggle for Node 4
+    let node4Dead = false;
+    function toggleNode4State() {
+      const dot = document.getElementById('dot-node-04');
+      const statusText = document.getElementById('status-node-04');
+      const btn = document.getElementById('btnKillNode4');
+      const container = document.getElementById('terminalLogContainer');
+
+      node4Dead = !node4Dead;
+      const now = new Date().toISOString().substring(11, 23);
+
+      if (node4Dead) {
+        dot.className = "w-2 h-2 rounded-full bg-error pulse-glow-crimson";
+        statusText.className = "text-label-caps font-label-caps text-error font-bold";
+        statusText.innerText = "DEAD / KILLED";
+        btn.innerText = "Revive Node";
+        btn.className = "flex-1 py-1 bg-surface-container-lowest border border-secondary text-secondary hover:bg-secondary-container hover:text-on-secondary font-code-sm text-code-sm rounded transition-all";
+
+        // Append log to terminal
+        const logLine = document.createElement('div');
+        logLine.className = 'flex items-start gap-2';
+        logLine.innerHTML = `
+          <span class="text-outline">[${now}]</span>
+          <span class="text-error font-semibold">[FAIL]</span>
+          <span class="text-error font-semibold">[HEARTBEAT_TIMEOUT]</span>
+          <span class="text-on-surface">Node 04 dropped peer connection. Raft quorum degraded to 3/4. Re-striping pending chunks to node-01, node-02.</span>
+        `;
+        container.prepend(logLine);
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-secondary pulse-glow-emerald";
+        statusText.className = "text-label-caps font-label-caps text-secondary font-bold";
+        statusText.innerText = "HEALTHY";
+        btn.innerText = "Kill Node (Chaos)";
+        btn.className = "flex-1 py-1 bg-surface-container-lowest border border-error text-error hover:bg-error-container hover:text-on-error font-code-sm text-code-sm rounded transition-all";
+
+        const logLine = document.createElement('div');
+        logLine.className = 'flex items-start gap-2';
+        logLine.innerHTML = `
+          <span class="text-outline">[${now}]</span>
+          <span class="text-secondary font-semibold">[RESTORE]</span>
+          <span class="text-primary font-semibold">[REJOIN_QUORUM]</span>
+          <span class="text-on-surface">Node 04 revived successfully. Synchronizing 14 missing Raft WAL logs. Node state verified.</span>
+        `;
+        container.prepend(logLine);
+      }
+    }
+
+    function simulateNodeKill(nodeId) {
+      alert("Chaos injection triggered on " + nodeId + ": Signal SIGKILL dispatched via Raft test harness.");
+    }
+  </script>
+</body></html>

@@ -1,0 +1,64 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Database & Runtime State
+*.db
+*.sqlite3
+hydrastore_metadata.db
+
+# Storage Nodes data & chunk payloads (Runtime generation)
+data_nodes/*/chunks/*
+!data_nodes/**/.gitkeep
+data_nodes/
+
+# IDE & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

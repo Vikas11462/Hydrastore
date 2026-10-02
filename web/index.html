@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>HydraStore // Distributed Object Storage Mission Control</title>
+  <meta name="description" content="HydraStore Orchestration Console — Fault-tolerant distributed object storage engine with consistent hashing, RF=2 replication, and chaos engineering controls." />
+
+  <!-- Typography: Inter & JetBrains Mono + Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS Engine -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#051424",
+            "surface": "#051424",
+            "surface-dim": "#051424",
+            "surface-bright": "#2c3a4c",
+            "surface-container-lowest": "#010f1f",
+            "surface-container-low": "#0d1c2d",
+            "surface-container": "#122131",
+            "surface-container-high": "#1c2b3c",
+            "surface-container-highest": "#273647",
+            "on-surface": "#d4e4fa",
+            "on-surface-variant": "#bdc8d1",
+            "outline": "#87929a",
+            "outline-variant": "#3e484f",
+            "primary": "#38bdf8",
+            "primary-container": "#0284c7",
+            "on-primary-container": "#f0f9ff",
+            "primary-fixed-dim": "#7bd0ff",
+            "secondary": "#10b981",
+            "secondary-container": "#047857",
+            "secondary-fixed": "#6ee7b7",
+            "tertiary": "#f59e0b",
+            "tertiary-container": "#b45309",
+            "error": "#ef4444",
+            "error-container": "#991b1b",
+            "on-error": "#ffffff"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom glow indicators & animations */
+    .pulse-glow-emerald { box-shadow: 0 0 10px rgba(16, 185, 129, 0.45); }
+    .pulse-glow-crimson { box-shadow: 0 0 12px rgba(239, 68, 68, 0.55); }
+    .pulse-glow-amber { box-shadow: 0 0 10px rgba(245, 158, 11, 0.45); }
+    .pulse-glow-cyan { box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+
+    .striped-bar {
+      background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%, transparent 25%,
+        transparent 50%, rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent
+      );
+      background-size: 1rem 1rem;
+      animation: progress-stripes 1.2s linear infinite;
+    }
+
+    @keyframes progress-stripes {
+      from { background-position: 1rem 0; }
+      to { background-position: 0 0; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeInUp { animation: fadeInUp 0.35s ease-out forwards; }
+
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-slideInLeft { animation: slideInLeft 0.3s ease-out forwards; }
+
+    /* Sidebar active indicator */
+    .sidebar-link.active {
+      background: #1c2b3c;
+      color: #38bdf8;
+      border-left: 2px solid #38bdf8;
+    }
+    .sidebar-link {
+      border-left: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .sidebar-link:hover {
+      background: #122131;
+      color: #d4e4fa;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #010f1f; }
+    ::-webkit-scrollbar-thumb { background: #273647; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+
+    /* Node card entrance animation stagger */
+    .node-card { animation: fadeInUp 0.4s ease-out forwards; opacity: 0; }
+    .node-card:nth-child(1) { animation-delay: 0.05s; }
+    .node-card:nth-child(2) { animation-delay: 0.12s; }
+    .node-card:nth-child(3) { animation-delay: 0.19s; }
+    .node-card:nth-child(4) { animation-delay: 0.26s; }
+
+    /* Subtle glow on hover for cards */
+    .node-card:hover { box-shadow: 0 0 20px rgba(56, 189, 248, 0.08); }
+
+    /* Command palette */
+    .cmd-palette { backdrop-filter: blur(8px); }
+  </style>
+</head>
+
+<body class="bg-surface-container-lowest text-on-surface font-sans antialiased min-h-screen flex flex-col overflow-x-hidden selection:bg-primary-container selection:text-white">
+
+  <!-- ================= TOP APP BAR ================= -->
+  <header class="flex justify-between items-center w-full px-4 h-12 bg-surface-container-lowest border-b border-outline-variant z-50 sticky top-0 shrink-0">
+    <!-- Brand & Cluster Tag -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-lg">storage</span>
+        <span class="font-mono text-xs font-bold tracking-tight text-primary uppercase">HYDRASTORE // ORCHESTRATION CONSOLE</span>
+      </div>
+      <div class="h-4 w-px bg-outline-variant hidden sm:block"></div>
+      <!-- Cluster Micro-Badges -->
+      <div class="hidden lg:flex items-center gap-1.5">
+        <span class="px-1.5 py-0.5 bg-surface-container-low text-primary-fixed-dim border border-outline-variant font-mono text-[10px] font-semibold tracking-wider uppercase rounded">v2.4-stable</span>
+        <span class="px-1.5 py-0.5 bg-surface-container-low text-on-surface-variant border border-outline-variant font-mono text-[10px] font-semibold tracking-wider uppercase rounded">cluster-us-east-metal-01</span>
+      </div>
+      <!-- Command Palette Search -->
+      <div class="hidden md:flex items-center bg-surface-container-low border border-outline-variant px-2 py-1 rounded w-56 focus-within:border-primary transition-colors">
+        <span class="material-symbols-outlined text-outline text-sm mr-1">terminal</span>
+        <input class="bg-transparent border-0 p-0 text-[11px] font-mono text-on-surface placeholder:text-outline focus:ring-0 w-full outline-none" placeholder="⌘K filter node / chunk..." type="text" />
+        <span class="text-[10px] font-mono font-semibold text-outline bg-surface-container-high px-1 rounded">⌘K</span>
+      </div>
+    </div>
+
+    <!-- Nav Tabs & Trailing Controls -->
+    <div class="flex items-center gap-3">
+      <!-- Nav Tabs -->
+      <nav class="hidden xl:flex items-center gap-4 h-12">
+        <a class="text-primary border-b-2 border-primary font-mono text-[11px] tracking-wider uppercase py-3 font-semibold transition-colors" href="#topology">Topology</a>
+        <a class="text-on-surface-variant hover:text-on-surface font-mono text-[11px] tracking-wider uppercase py-3 transition-colors" href="#buckets">Buckets</a>
+        <a class="text-on-surface-variant hover:text-on-surface font-mono text-[11px] tracking-wider uppercase py-3 transition-colors" href="#eventstream">Event Stream</a>
+      </nav>
+      <div class="h-4 w-px bg-outline-variant hidden xl:block"></div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-1.5">
+        <button id="refreshClusterBtn" onclick="fetchClusterTopology(); fetchFiles();" class="flex items-center gap-1 px-2 py-1 bg-surface-container border border-outline-variant hover:border-primary text-on-surface font-mono text-[11px] rounded transition-all cursor-pointer" title="Force Sync Quorum">
+          <span class="material-symbols-outlined text-sm">sync</span>
+          <span class="hidden sm:inline">Sync</span>
+        </button>
+
+        <a href="/docs" target="_blank" class="flex items-center gap-1 px-2 py-1 bg-surface-container-high border border-primary text-primary hover:bg-primary hover:text-black font-mono text-[11px] rounded transition-all cursor-pointer" title="API Documentation">
+          <span class="material-symbols-outlined text-sm">api</span>
+          <span class="hidden sm:inline">Swagger</span>
+        </a>
+
+        <!-- Icon buttons -->
+        <div class="flex items-center gap-0.5 text-on-surface-variant">
+          <button class="p-1 hover:bg-surface-container-high hover:text-primary rounded transition-colors" title="Notifications">
+            <span class="material-symbols-outlined text-base">notifications</span>
+          </button>
+        </div>
+
+        <!-- Operator Badge -->
+        <div class="flex items-center gap-1.5 pl-2 border-l border-outline-variant">
+          <div class="w-6 h-6 rounded bg-surface-container-high border border-outline-variant flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-sm">engineering</span>
+          </div>
+          <span class="text-[10px] font-mono font-semibold text-on-surface-variant tracking-wider hidden lg:inline">SRE_OPS</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= TELEMETRY TICKER BAR ================= -->
+  <div class="bg-surface-container-low border-b border-outline-variant px-4 py-1.5 flex flex-wrap items-center justify-between gap-y-1 text-[11px] font-mono">
+    <!-- Cluster Status Pill & Health Flags -->
+    <div class="flex items-center flex-wrap gap-2">
+      <div id="clusterStatusPill" class="flex items-center gap-2 bg-surface-container-high border border-outline-variant px-2.5 py-0.5 rounded">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+        </span>
+        <span id="onlineNodeCount" class="text-secondary font-bold tracking-wider text-[10px]">4/4 NODES HEALTHY</span>
+      </div>
+      <div class="flex items-center gap-1 px-2 py-0.5 bg-surface-container-lowest border border-outline-variant rounded text-on-surface">
+        <span class="material-symbols-outlined text-secondary text-xs">verified_user</span>
+        <span class="font-semibold text-[10px] tracking-wider">QUORUM OK</span>
+      </div>
+      <div class="flex items-center gap-1 px-2 py-0.5 bg-surface-container-lowest border border-outline-variant rounded text-primary-fixed-dim">
+        <span class="font-semibold text-[10px] tracking-wider">[RF=2 HA ACTIVE]</span>
+      </div>
+    </div>
+
+    <!-- Live Capacity & Object Metrics -->
+    <div class="flex items-center flex-wrap gap-3 text-on-surface-variant">
+      <div class="flex items-center gap-1.5">
+        <span class="text-outline text-[10px] font-semibold tracking-wider">CAPACITY:</span>
+        <span id="clusterTotalUsed" class="text-white font-semibold">0 B / 4.0 GB</span>
+        <span id="clusterUsedPercent" class="text-primary text-[10px] font-semibold">(0% Used)</span>
+      </div>
+      <span class="text-outline-variant">|</span>
+      <div class="flex items-center gap-1.5">
+        <span class="text-outline text-[10px] font-semibold tracking-wider">OBJECTS:</span>
+        <span id="clusterTotalObjects" class="text-white font-semibold">0</span>
+      </div>
+      <span class="text-outline-variant">|</span>
+      <div class="flex items-center gap-1.5">
+        <span class="text-outline text-[10px] font-semibold tracking-wider">HASH RING:</span>
+        <span class="text-secondary font-semibold">128 VNodes / Node</span>
+      </div>
+      <span class="text-outline-variant hidden sm:inline">|</span>
+      <div class="hidden sm:flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+        <span id="heartbeatStatusText" class="text-[10px] text-outline tracking-wider">HEALTH MONITOR: 2s LEASE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN WORKSPACE (Sidebar + Content) ================= -->
+  <div class="flex flex-1 overflow-hidden relative">
+
+    <!-- ================= SIDEBAR NAVIGATION ================= -->
+    <aside class="flex flex-col h-full justify-between w-56 border-r border-outline-variant bg-surface-container-low z-40 shrink-0 hidden md:flex">
+      <!-- Sidebar Header -->
+      <div class="p-3 border-b border-outline-variant">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded bg-surface-container-high border border-outline-variant flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-base">database</span>
+          </div>
+          <div>
+            <div class="font-mono text-xs font-bold text-white">HYDRA-CORE v4.19</div>
+            <div class="font-mono text-[10px] font-semibold text-secondary tracking-wider">QUORUM: MET [RF=2]</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex-1 py-2 overflow-y-auto">
+        <nav class="space-y-0.5">
+          <a class="sidebar-link active flex items-center gap-2 px-3 py-2 font-mono text-[11px] font-medium" href="#topology">
+            <span class="material-symbols-outlined text-base">hub</span>
+            <span>Cluster State</span>
+          </a>
+          <a class="sidebar-link flex items-center gap-2 px-3 py-2 font-mono text-[11px] font-medium text-on-surface-variant" href="#ingest">
+            <span class="material-symbols-outlined text-base">cloud_upload</span>
+            <span>Ingestion Pipeline</span>
+          </a>
+          <a class="sidebar-link flex items-center gap-2 px-3 py-2 font-mono text-[11px] font-medium text-on-surface-variant" href="#buckets">
+            <span class="material-symbols-outlined text-base">inventory_2</span>
+            <span>Object Catalog</span>
+          </a>
+          <a class="sidebar-link flex items-center gap-2 px-3 py-2 font-mono text-[11px] font-medium text-on-surface-variant" href="#eventstream">
+            <span class="material-symbols-outlined text-base">terminal</span>
+            <span>Event Stream</span>
+          </a>
+          <a class="sidebar-link flex items-center gap-2 px-3 py-2 font-mono text-[11px] font-medium text-on-surface-variant" href="#rebalance">
+            <span class="material-symbols-outlined text-base">sync_alt</span>
+            <span>Rebalance Log</span>
+          </a>
+          <a class="sidebar-link flex items-center gap-2 px-3 py-2 font-mono text-[11px] font-medium text-on-surface-variant" href="#audit">
+            <span class="material-symbols-outlined text-base">data_object</span>
+            <span>System Audit</span>
+          </a>
+        </nav>
+
+        <!-- Sidebar CTA -->
+        <div class="px-3 pt-4">
+          <button class="w-full py-1.5 px-2 bg-surface-container border border-primary-container text-primary-fixed-dim hover:bg-primary-container hover:text-on-primary-container font-mono text-[11px] rounded transition-all cursor-pointer flex items-center justify-center gap-1.5">
+            <span class="material-symbols-outlined text-sm">autorenew</span>
+            <span>Trigger Rebalance</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="border-t border-outline-variant p-2 space-y-0.5">
+        <a class="flex items-center gap-2 px-2 py-1.5 text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-mono text-[11px] rounded transition-colors" href="/docs" target="_blank">
+          <span class="material-symbols-outlined text-sm">tune</span>
+          <span>API Settings</span>
+        </a>
+        <div class="flex items-center gap-2 px-2 py-1 text-[10px] font-mono text-outline">
+          <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+          <span>v2.4-stable • 4 nodes active</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= CANVAS CONTENT AREA ================= -->
+    <main class="flex-1 overflow-y-auto p-4 lg:p-5 space-y-5 bg-surface">
+
+      <!-- SECTION 1: STORAGE NODES TOPOLOGY GRID -->
+      <section class="space-y-3" id="topology">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg">hub</span>
+            <h2 class="text-base font-bold text-white font-mono uppercase tracking-wide">Storage Nodes Topology Grid</h2>
+            <span class="px-2 py-0.5 bg-surface-container text-secondary border border-outline-variant font-mono text-[10px] font-semibold rounded tracking-wider">4 LIVE INSTANCES</span>
+          </div>
+          <div class="flex items-center gap-2 text-[11px] font-mono text-on-surface-variant">
+            <span>Ring Placement: <span class="text-primary font-semibold">MD5 (32-bit) Clockwise</span></span>
+          </div>
+        </div>
+
+        <!-- 4-Column Nodes Grid (dynamically rendered) -->
+        <div id="nodesGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+          <div class="col-span-full py-8 text-center text-outline font-mono text-sm animate-pulse">
+            Loading cluster nodes telemetry...
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: DISTRIBUTED INGESTION PIPELINE -->
+      <section class="space-y-3" id="ingest">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg">cloud_upload</span>
+            <h2 class="text-base font-bold text-white font-mono uppercase tracking-wide">Distributed Ingestion Pipeline</h2>
+          </div>
+          <div class="hidden sm:flex items-center gap-2 text-[10px] font-mono font-semibold text-outline tracking-wider">
+            <span>PIPELINE:</span>
+            <span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface rounded">4MB Chunks</span>
+            <span>→</span>
+            <span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-on-surface rounded">SHA-256 Hashing</span>
+            <span>→</span>
+            <span class="px-1.5 py-0.5 bg-surface-container-high border border-outline-variant text-secondary rounded">RF=2 Striping</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          <!-- Dropzone -->
+          <div id="dropzone" class="lg:col-span-2 border-2 border-dashed border-outline-variant hover:border-primary bg-surface-container-low hover:bg-surface-container rounded-lg p-6 flex flex-col items-center justify-center text-center transition-all cursor-pointer group">
+            <input type="file" id="fileInput" class="hidden" />
+            <div class="w-12 h-12 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center mb-3 group-hover:scale-110 group-hover:border-primary transition-all duration-300">
+              <span class="material-symbols-outlined text-2xl text-primary">upload_file</span>
+            </div>
+            <div class="font-mono text-sm font-medium text-white">
+              Drop objects to ingest into HydraStore or <span class="text-primary underline">browse files</span>
+            </div>
+            <div class="font-mono text-xs text-outline mt-1">
+              Automated 4MB block slicing, dual-tier SHA-256 verification, and parallel RF=2 replica streaming.
+            </div>
+          </div>
+
+          <!-- Transfer Telemetry Card -->
+          <div class="bg-surface-container-low border border-outline-variant rounded-lg p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-[11px] font-mono mb-2">
+                <span class="text-primary uppercase font-bold flex items-center gap-1.5 text-[10px] tracking-wider">
+                  <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                  INGEST MONITOR
+                </span>
+                <span id="uploadPercent" class="text-white font-semibold text-xs">Idle</span>
+              </div>
+              <div id="uploadFileName" class="font-mono text-sm font-semibold text-white truncate">
+                Ready for payload
+              </div>
+              <div class="flex items-center justify-between text-[11px] font-mono text-on-surface-variant mt-1">
+                <span id="uploadStatusText">Awaiting file upload...</span>
+                <span id="uploadSpeed" class="text-secondary font-medium"></span>
+              </div>
+              <!-- Progress Bar -->
+              <div id="uploadProgressContainer" class="w-full bg-surface-container-lowest h-2 rounded mt-3 overflow-hidden border border-outline-variant">
+                <div id="uploadProgressBar" class="bg-primary h-full striped-bar rounded transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-outline-variant text-[11px] font-mono text-outline mt-3">
+              <span>DURABILITY: <span class="text-white font-medium">RF=2 Guaranteed</span></span>
+              <span class="px-1.5 py-0.5 bg-surface-container text-primary text-[10px] font-semibold rounded tracking-wider">ATOMIC WRITE</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: STORED OBJECTS CATALOG -->
+      <section class="space-y-3" id="buckets">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg">inventory_2</span>
+            <h2 class="text-base font-bold text-white font-mono uppercase tracking-wide">Stored Objects Index</h2>
+            <span id="storedObjectsCountBadge" class="text-[10px] font-mono font-semibold text-outline bg-surface-container px-2 py-0.5 rounded border border-outline-variant tracking-wider">0 OBJECTS</span>
+          </div>
+          <!-- Search & Filter Controls -->
+          <div class="flex items-center gap-2">
+            <div class="flex items-center bg-surface-container-low border border-outline-variant px-2.5 py-1 rounded w-60 focus-within:border-primary">
+              <span class="material-symbols-outlined text-outline text-sm mr-1.5">search</span>
+              <input id="searchInput" class="bg-transparent border-0 p-0 text-[11px] font-mono text-white placeholder:text-outline focus:ring-0 w-full outline-none" placeholder="Filter by key, prefix or SHA-256..." type="text" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="border border-outline-variant rounded-lg bg-surface-container-low overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-outline-variant bg-surface-container-lowest text-outline font-mono text-[10px] tracking-wider uppercase select-none font-semibold">
+                <th class="py-2.5 px-4">Object Key / Name</th>
+                <th class="py-2.5 px-4">Size</th>
+                <th class="py-2.5 px-4">Chunks & Replicas</th>
+                <th class="py-2.5 px-4">SHA-256 Checksum</th>
+                <th class="py-2.5 px-4">Ingest Date</th>
+                <th class="py-2.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="filesTableBody" class="divide-y divide-outline-variant text-xs font-mono">
+              <tr>
+                <td colspan="6" class="py-8 text-center text-outline font-mono">
+                  No objects stored yet. Drag and drop a file above to begin.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 4: LIVE CLUSTER EVENT STREAM -->
+      <section class="space-y-3 pb-8" id="eventstream">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg">terminal</span>
+            <h2 class="text-base font-bold text-white font-mono uppercase tracking-wide">Live Cluster Event Stream</h2>
+          </div>
+          <div class="flex items-center gap-2 text-[11px] font-mono">
+            <span class="flex items-center gap-1.5 text-secondary text-[10px] font-semibold px-2 py-0.5 bg-surface-container border border-outline-variant rounded tracking-wider">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+              SSE REAL-TIME
+            </span>
+            <button id="clearLogsBtn" onclick="clearConsoleLog()" class="px-2.5 py-0.5 bg-surface-container border border-outline-variant hover:border-outline text-outline hover:text-white rounded transition-colors">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal Shell -->
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 font-mono text-xs shadow-inner">
+          <div class="flex items-center justify-between pb-2 border-b border-outline-variant text-outline text-[10px] font-semibold mb-2 tracking-wider">
+            <span>EVENT_CHANNEL: /api/v1/cluster/events</span>
+            <span>PROTOCOL: Server-Sent Events (SSE)</span>
+          </div>
+          <div id="eventConsole" class="space-y-1.5 overflow-y-auto max-h-52 font-mono text-xs">
+            <div class="text-outline text-[11px]">[SYSTEM READY] Listening for distributed cluster events...</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ================= CHUNK INSPECTION MODAL ================= -->
+  <div id="chunkModal" class="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-surface-container-low border border-outline-variant w-full max-w-4xl rounded-lg shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-fadeInUp">
+
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant bg-surface-container">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded bg-surface-container-high border border-primary flex items-center justify-center text-primary">
+            <span class="material-symbols-outlined text-lg">segment</span>
+          </div>
+          <div>
+            <div id="modalFileName" class="text-base font-bold text-white font-mono">Inspect Object Topology</div>
+            <div id="modalFileSub" class="text-[10px] font-mono text-outline tracking-wider font-semibold">REPLICATION FACTOR & SHARD PLACEMENT</div>
+          </div>
+        </div>
+        <button id="closeModalBtn" onclick="closeChunkModal()" class="text-outline hover:text-white p-1 rounded transition-colors">
+          <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-4">
+        <!-- Summary Strip -->
+        <div id="modalChunksSummary" class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-container-lowest border border-outline-variant p-3 rounded text-xs font-mono">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Node Allocation Heatmap -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-white font-semibold">Node Allocation Heatmap</span>
+            <span class="text-outline text-[10px] font-semibold tracking-wider">DISTRIBUTED VIA CONSISTENT HASH RING</span>
+          </div>
+          <div id="modalNodeHeatmap" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+            <!-- Heatmap populated by JS -->
+          </div>
+        </div>
+
+        <!-- Chunk Stripe Distribution Table -->
+        <div class="border border-outline-variant rounded overflow-hidden">
+          <div class="bg-surface-container-highest px-3 py-2 text-[10px] font-mono text-on-surface-variant font-bold border-b border-outline-variant uppercase tracking-wider">
+            Chunk Stripe Distribution & Replica Matrix
+          </div>
+          <div class="overflow-x-auto max-h-64">
+            <table class="w-full text-left text-xs font-mono border-collapse">
+              <thead>
+                <tr class="bg-surface-container-lowest border-b border-outline-variant text-outline text-[10px] font-semibold uppercase tracking-wider">
+                  <th class="py-2 px-3">Chunk Index</th>
+                  <th class="py-2 px-3">Byte Size</th>
+                  <th class="py-2 px-3">Primary Node</th>
+                  <th class="py-2 px-3">Replica Node</th>
+                  <th class="py-2 px-3">Chunk SHA-256</th>
+                </tr>
+              </thead>
+              <tbody id="modalChunksContainer" class="divide-y divide-outline-variant">
+                <!-- Chunks table rows populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between px-6 py-3 border-t border-outline-variant bg-surface-container text-xs font-mono">
+        <div class="text-outline text-[10px] font-semibold tracking-wider">
+          INTEGRITY: SHA-256 VERIFIED AT STORAGE LAYER
+        </div>
+        <button onclick="closeChunkModal()" class="px-4 py-1.5 bg-surface-container-high border border-outline-variant hover:border-primary text-white rounded transition-colors">
+          Close Inspector
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Frontend Client Logic -->
+  <script src="/static/app.js"></script>
+</body>
+</html>
